@@ -170,6 +170,7 @@ int startListening(struct ConnectionInfo &config){
 int main(int argc, char* argv[]) {
     if(argc < 3){
         std::cout << "Not enough parameters passed!" << std::endl;
+        std::cout << "Usage: ./task1 <inet-address> <timeout>" << std::endl;
         return 1;
     }
 
