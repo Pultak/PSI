@@ -45,7 +45,7 @@ struct ConnectionInfo{
 };
 
 /***
- *
+ *  This function initializes everything needed for our connection
  * @param config
  * @return
  */
@@ -110,7 +110,7 @@ InitResponse initConnection(struct ConnectionInfo &config){
 }
 
 /***
- *
+ * This function sends the SSDP discovery packet
  * @param config
  * @return
  */
