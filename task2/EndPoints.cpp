@@ -5,8 +5,6 @@
 
 #include "EndPoints.h"
 
-
-
 void EndPoints::helloWorld(std::string& result){
     result = std::string("Ahoj svete!!!");
 }
@@ -23,5 +21,4 @@ void EndPoints::getInfo(std::string& result){
 }
 void EndPoints::getTopSecret(std::string& result){
     result = std::string("Zde pornografii nenaleznete!");
-
 }

@@ -20,13 +20,15 @@ void HttpComm::workerEntryPoint() {
             struct timeval timeout{};
             auto begin = std::chrono::steady_clock::now();
             auto actual = begin;
+
+            //while the time is in the timeout scope => select from user
             while (std::chrono::duration_cast<std::chrono::seconds>(actual - begin).count() < SOCKET_TIMEOUT_SEC) {
                 FD_SET(userSocket, &sockets);
                 timeout.tv_sec  = 0;
                 timeout.tv_usec = SOCKET_TIMEOUT_SEC;
                 select(FD_SETSIZE, &sockets, nullptr, nullptr, &timeout);
 
-                // Check if there's data to be read off the client's socket.
+                // Check for data from the client socket.
                 if (FD_ISSET(userSocket, &sockets)) {
                     processUserRequest(userSocket, ip);
                     break;
@@ -67,8 +69,13 @@ void HttpComm::processUserRequest(int userSocket, const std::string& ip) {
             endPointMap[resource](result);
             response = "HTTP/1.1 " + std::to_string(200) + "\n\n" + result;
         }else{
+            std::cout << "Resource " + resource + " not found!"<< std::endl;
+
             response = "HTTP/1.1 " + std::to_string(404) + "\n\n";
         }
+
+        std::cout << "Sending result to " + ip + " from resource: " + resource << std::endl;
+
         send(userSocket, response.c_str(), response.length(), 0);
     } else {
         std::cout << "Received INVALID GET request from  " + ip + "!" << std::endl;
