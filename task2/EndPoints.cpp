@@ -3,7 +3,6 @@
 //
 
 
-#include <map>
 #include "EndPoints.h"
 
 
@@ -23,7 +22,6 @@ void EndPoints::getInfo(std::string& result){
     result = std::string("Tohle je jednoduchy server odpovidajici pouze na HTTP GET Requesty!");
 }
 void EndPoints::getTopSecret(std::string& result){
-    //TODO: Caught in 4k or fbi open up
     result = std::string("Zde pornografii nenaleznete!");
 
 }

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <bits/socket.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <csignal>
@@ -50,6 +49,7 @@ int initServer(ConnectionInfo &config){
     }
 
     std::cout << "Server init done!" << std::endl;
+    return 0;
 }
 
 
@@ -62,6 +62,7 @@ int startAccepting(const ConnectionInfo& config, HttpComm& comm){
     struct sockaddr_in newAddr{};
     auto socketLenPtr = reinterpret_cast<socklen_t *>(&addressLen);
 
+    std::cout << "Starting accepting request!" << std::endl;
     while (true) {
         if ((userSocket = accept(config.socket, reinterpret_cast<sockaddr *>(&newAddr), socketLenPtr)) < 0) {
             std::cout << "Error occurred during accept!" << std::endl;
@@ -75,6 +76,7 @@ int startAccepting(const ConnectionInfo& config, HttpComm& comm){
         std::cout << "New connection with " << ip << " was established!" << std::endl;
         usleep(SERVER_ACCEPT_DELAY_MS); // Wait for a certain amount of time before accepting another connection.
     }
+    return 0;
 }
 
 

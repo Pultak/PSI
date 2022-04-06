@@ -12,7 +12,7 @@
 namespace Synchronization {
     class Semaphore {
     public:
-        explicit Semaphore() {
+        explicit Semaphore(int threadCount): threadCount(threadCount) {
             count = 0;
         }
 
@@ -20,6 +20,12 @@ namespace Synchronization {
             std::unique_lock<std::mutex> lock(mtx);
             count++;
             cv.notify_one();
+        }
+
+        inline void notifyAll(){
+            std::unique_lock<std::mutex> lock(mtx);
+            count += threadCount;
+            cv.notify_all();
         }
 
         inline void wait(){
@@ -34,8 +40,7 @@ namespace Synchronization {
     private:
         std::condition_variable cv;
         size_t count;
+        int threadCount;
     };
-};
-
-
+}
 #endif //TASK2_SYNCHRONIZATION_H
