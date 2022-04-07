@@ -81,7 +81,7 @@ int startAccepting(const ConnectionInfo& config, HttpComm& comm){
 int main(int argc, char* argv[]) {
     if(argc < 3){
         std::cout << "Not enough parameters passed!" << std::endl;
-        std::cout << "Usage: ./task1 <inet-address> <timeout>" << std::endl;
+        std::cout << "Usage: ./task1 <inet-address> <port>" << std::endl;
         return 1;
     }
 
