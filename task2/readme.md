@@ -1,4 +1,4 @@
-##Popis aplikace
+##P opis aplikace
 
 Jedná se o jednoduchý HTTP server, který dokáže obsluhovat HTTP GET požadavky. 
 Ty jsou zpracovávány stanovenou množinou vláken, které přijaté požadavky ověřují a pokud je validní odešlou základní HTTP odpověd.
@@ -18,7 +18,7 @@ Odpovědi nabývají textové podoby. Při přístupu na endpoint "/hello-world/
 
 ![img.png](img/helloWorld.png)
 
-##Sestavení a spuštění
+## Sestavení a spuštění
 
 Pro sestavení aplikace je potřeba pouze funkční **cmake**.
 K sestavení aplikace je potřeba pouze těchto příkazů:
@@ -29,18 +29,11 @@ make
 
 
 Nová spustitelná verze aplikace by se měla objevit v root adresáři pod náznem **task2**
-Po úspěšné kompilaci stačí spustit následujím způsobem:
+Po úspěšné kompilaci aplikaci stačí spustit následujím způsobem:
 
 ```
 ./task1 127.0.0.1 6969
 ```
-
-
-
-
-
-
-
 
 
 ## Testování aplikace
