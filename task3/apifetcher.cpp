@@ -78,7 +78,14 @@ bool ApiFetcher::sendAndReadRequest(std::string& result) {
     }
 
     result = result.substr(position - 1 + sizeof("\r\n\r\n"));
-    //todo trim JSON data?;
+    //now trim JSON data to remove unwanted bloat;
+    while (!result.empty() && result[0] != '{') {
+        result = result.erase(0, 1);
+    }
+    while (!result.empty() && result[result.length() - 1] != '}') {
+        result.pop_back();
+    }
+
     return true;
 }
 

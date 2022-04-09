@@ -10,24 +10,23 @@
 #define SS_IP "45.33.59.78"
 #define SS_HOST "api.sunrise-sunset.org"
 #define SS_PORT 80
-#define SS_ENDPOINT(latitude, longitude) "/json?lat=" #latitude "&lng=" #longitude "&formatted=0"
+#define SS_ENDPOINT(latitude, longitude) "/json?lat=" + latitude + "&lng=" + longitude + "&formatted=0"
 
 #define TIMESTAMP_IP "13.79.230.33"
 #define TIMESTAMP_HOST "showcase.api.linx.twenty57.net"
 #define TIMESTAMP_PORT 80
-#define TIMESTAMP_ENDPOINT(timestamp) "/UnixTime/fromunixtimestamp?unixtimestamp=" #timestamp
+#define TIMESTAMP_ENDPOINT(timestamp) "/UnixTime/fromunixtimestamp?unixtimestamp=" + timestamp +
 
 
 #define GET_REQUEST(ENDPOINT, HOST) \
-"GET " ENDPOINT " HTTP/1.1\n"\
-"Host: " HOST "\n"\
-"Connection: close\n"\
+"GET " ENDPOINT " HTTP/1.1\n" \
+"Host: "  HOST "\n" \
+"Connection: close\n" \
 "Upgrade-Insecure-Requests: 1\n\n"
 
 
-std::string tsFetch(){
-
-    auto tsGet = std::string(GET_REQUEST(TIMESTAMP_ENDPOINT(issTimestamp), TIMESTAMP_HOST));
+std::string tsFetch(const std::string& issStamp){
+    auto tsGet = std::string(GET_REQUEST(TIMESTAMP_ENDPOINT(issStamp), TIMESTAMP_HOST));
     ApiFetcher ts{TIMESTAMP_PORT, TIMESTAMP_IP, tsGet};
     std::string tsResult{};
     if(!ts.fetchData(tsResult)){
@@ -35,7 +34,7 @@ std::string tsFetch(){
         exit(EXIT_FAILURE);
     }
 
-    std::cout << "Received from Timestamp:" << std::endl;
+    std::cout << "Received from Timestamp API:" << std::endl;
     std::cout << tsResult << std::endl;
     std::cout << std::endl << std::endl;
 
@@ -89,7 +88,6 @@ std::tuple<std::string, std::string, long> issFetch(){
         std::cout << "No data received from ISS server!\n";
         exit(EXIT_FAILURE);
     }
-    issResult = "{" + issResult + "}";
     auto issJson = nlohmann::json::parse(issResult);
 
     std::string lat = issJson["iss_position"]["latitude"];
@@ -102,7 +100,8 @@ std::tuple<std::string, std::string, long> issFetch(){
 int main() {
     auto [lat, lng, issTimestamp] = issFetch();
     auto [sunset, sunrise] = ssFetch(lat, lng);
-    auto dateTime = tsFetch();
+    auto strISSStamp = std::to_string(issTimestamp);
+    auto dateTime = tsFetch(strISSStamp);
 
     return 0;
 }
