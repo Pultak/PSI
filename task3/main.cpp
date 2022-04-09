@@ -11,12 +11,14 @@
 #define SS_HOST "api.sunrise-sunset.org"
 #define SS_PORT 80
 #define SS_ENDPOINT(latitude, longitude) "/json?lat=" + latitude + "&lng=" + longitude + "&formatted=0"
+#define SS_DATE_FORMAT "%Y-%m-%dT%H:%M:%S"
+
 
 #define TIMESTAMP_IP "13.79.230.33"
 #define TIMESTAMP_HOST "showcase.api.linx.twenty57.net"
 #define TIMESTAMP_PORT 80
 #define TIMESTAMP_ENDPOINT(timestamp) "/UnixTime/fromunixtimestamp?unixtimestamp=" + timestamp +
-
+#define TIMESTAMP_DATE_FORMAT "%Y-%m-%d %H:%M:%S"
 
 #define GET_REQUEST(ENDPOINT, HOST) \
 "GET " ENDPOINT " HTTP/1.1\n" \
@@ -40,6 +42,7 @@ std::string tsFetch(const std::string& issStamp){
 
     auto tsJson = nlohmann::json::parse(tsResult);
     std::string datetime = tsJson["Datetime"];
+
     return datetime;
 }
 
@@ -66,9 +69,7 @@ std::tuple<std::string, std::string> ssFetch(const std::string& lat, const std::
     std::string sunrise = ssJson["results"]["sunrise"];
     std::string sunset = ssJson["results"]["sunset"];
 
-    //TODO simplify?
-
-    return std::make_tuple(sunrise, sunset);
+    return std::make_tuple(sunset, sunrise);
 }
 
 std::tuple<std::string, std::string, long> issFetch(){
@@ -97,11 +98,57 @@ std::tuple<std::string, std::string, long> issFetch(){
 }
 
 
+auto stringTime2Long(const char* format, const std::string& stringData){
+    std::tm tm = {};
+    std::stringstream ss(stringData);
+    ss >> std::get_time(&tm, format);
+    auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    auto epoch = std::chrono::time_point_cast<std::chrono::milliseconds>(tp).time_since_epoch();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(epoch).count();
+}
+
 int main() {
     auto [lat, lng, issTimestamp] = issFetch();
     auto [sunset, sunrise] = ssFetch(lat, lng);
     auto strISSStamp = std::to_string(issTimestamp);
-    auto dateTime = tsFetch(strISSStamp);
+    auto actualTime = tsFetch(strISSStamp);
 
+    std::cout << "Actual time: " << actualTime << std::endl;
+    std::cout << "Actual sunrise time: " << sunrise << std::endl
+    << "Actual sunset time: " << sunset;
+
+    auto sunsetMs = stringTime2Long(SS_DATE_FORMAT, sunset);
+    auto sunriseMs = stringTime2Long(SS_DATE_FORMAT, sunrise);
+    auto actualMs = stringTime2Long(TIMESTAMP_DATE_FORMAT, actualTime);
+
+    std::cout << std::endl;
+
+    long ms2Sunrise = sunriseMs - actualMs;
+    long ms2Sunset = actualMs - sunsetMs;
+    auto hoursBeforeSunrise = (double)ms2Sunrise / 3600000.0;
+    auto hoursAfterSunset = (double)ms2Sunset / 3600000.0;
+
+    hoursBeforeSunrise = (hoursBeforeSunrise < 0 ? 24 + hoursBeforeSunrise : hoursBeforeSunrise);
+    hoursAfterSunset = (hoursAfterSunset < 0 ? 24 + hoursAfterSunset : hoursAfterSunset);
+
+    std::cout << "Remaining hours to next sunrise: " << hoursBeforeSunrise << std::endl;
+    std::cout << "Elapsed hours from last sunset: " << hoursAfterSunset << std::endl;
+    std::cout << std::endl;
+
+    if(hoursAfterSunset > 12 && hoursBeforeSunrise > 12){
+        std::cout << "ISS is currently on the illuminated side of the earth.";
+    }else{
+        std::cout << "ISS is currently on the dark side of the earth.";
+    }
+    std::cout << std::endl;
+
+    if(hoursAfterSunset <= 2 && hoursAfterSunset >= 1){
+        std::cout << "Ideal conditions to observer the ISS (" << hoursAfterSunset << " hours after sunset)";
+    }else if(hoursBeforeSunrise <= 2 && hoursBeforeSunrise >= 1){
+        std::cout << "Ideal conditions to observer the ISS (" << hoursBeforeSunrise << " hours before sunset)";
+    }else{
+        std::cout << "Currently there are non ideal conditions to observer ISS";
+    }
+    std::cout << std::endl;
     return 0;
 }

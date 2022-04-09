@@ -24,11 +24,11 @@ bool ApiFetcher::connectToApi() {
         return false;
     }
 
-    // Initialize connection.
+    // Try to initialize connection with the API
     connectionInfo->deviceAddress.sin_family = AF_INET;
     connectionInfo->deviceAddress.sin_port = htons(connectionInfo->port);
     if (inet_pton(AF_INET, connectionInfo->inetAddress, &(connectionInfo->deviceAddress.sin_addr)) <=0) {
-        std::cout << "ERR: could not initialize connection\n";
+        std::cout << "Failed to initialize connection\n";
         return "";
     }
 
@@ -56,6 +56,9 @@ bool ApiFetcher::connectToApi() {
 
 bool ApiFetcher::sendAndReadRequest(std::string& result) {
     char buffer[BUFF_SIZE];
+
+    std::cout << "Sending this HTTP GET request:" << std::endl;
+    std::cout << requestBody;
 
     // Send our HTTP GET request to the server
     if (send(connectionInfo->socket, requestBody.c_str(), requestBody.length(), 0) == -1) {
@@ -85,7 +88,6 @@ bool ApiFetcher::sendAndReadRequest(std::string& result) {
     while (!result.empty() && result[result.length() - 1] != '}') {
         result.pop_back();
     }
-
     return true;
 }
 

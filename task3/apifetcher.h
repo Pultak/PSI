@@ -37,6 +37,8 @@ public:
 private:
     bool connectToApi();
     bool sendAndReadRequest(std::string& result);
+
+
 };
 
 
