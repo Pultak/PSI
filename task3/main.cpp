@@ -109,13 +109,20 @@ auto stringTime2Long(const char* format, const std::string& stringData){
 
 int main() {
     auto [lat, lng, issTimestamp] = issFetch();
+    std::cout << "__________________________________________________________________" << std::endl;
     auto [sunset, sunrise] = ssFetch(lat, lng);
+    std::cout << "__________________________________________________________________" << std::endl;
     auto strISSStamp = std::to_string(issTimestamp);
     auto actualTime = tsFetch(strISSStamp);
+    std::cout << "__________________________________________________________________" << std::endl;
 
     std::cout << "Actual time: " << actualTime << std::endl;
     std::cout << "Actual sunrise time: " << sunrise << std::endl
     << "Actual sunset time: " << sunset;
+
+    /*auto actualTime = "2022-04-09 12:52:58";
+    auto sunrise = "2022-04-09T00:49:42+00:00";
+    auto sunset = "2022-04-09T13:44:29+00:00";*/
 
     auto sunsetMs = stringTime2Long(SS_DATE_FORMAT, sunset);
     auto sunriseMs = stringTime2Long(SS_DATE_FORMAT, sunrise);
@@ -123,19 +130,41 @@ int main() {
 
     std::cout << std::endl;
 
-    long ms2Sunrise = sunriseMs - actualMs;
-    long ms2Sunset = actualMs - sunsetMs;
+    long ms2Sunrise = 0;
+    long ms2Sunset = 0;
+    bool pastSunriseTime = false;
+    if(actualMs > sunriseMs){
+        pastSunriseTime = true;
+        ms2Sunrise = sunriseMs - (actualMs - 24 * 3600000);
+    }else{
+        pastSunriseTime = false;
+        //add one day
+        ms2Sunrise = sunriseMs - actualMs;
+    }
+
+    bool pastSunsetTime = false;
+    if(actualMs < sunsetMs){
+        pastSunsetTime = true;
+        ms2Sunset = sunsetMs - (actualMs + 24 * 3600000);
+    }else{
+        pastSunsetTime = false;
+        ms2Sunset = sunsetMs - actualMs;
+    }
     auto hoursBeforeSunrise = (double)ms2Sunrise / 3600000.0;
     auto hoursAfterSunset = (double)ms2Sunset / 3600000.0;
 
-    hoursBeforeSunrise = (hoursBeforeSunrise < 0 ? 24 + hoursBeforeSunrise : hoursBeforeSunrise);
-    hoursAfterSunset = (hoursAfterSunset < 0 ? 24 + hoursAfterSunset : hoursAfterSunset);
 
-    std::cout << "Remaining hours to next sunrise: " << hoursBeforeSunrise << std::endl;
-    std::cout << "Elapsed hours from last sunset: " << hoursAfterSunset << std::endl;
+    //hoursBeforeSunrise = (hoursBeforeSunrise < 0 ? 24 + hoursBeforeSunrise : hoursBeforeSunrise);
+    hoursBeforeSunrise = hoursBeforeSunrise;
+    //hoursAfterSunset = (hoursAfterSunset < 0 ? 24 + hoursAfterSunset : hoursAfterSunset);
+    hoursAfterSunset = hoursAfterSunset * -1;
+
+    std::cout << "Remaining hours to next sunrise in current place: " << hoursBeforeSunrise << std::endl;
+    std::cout << "Elapsed hours from last sunset in current place: " << hoursAfterSunset << std::endl;
     std::cout << std::endl;
 
-    if(hoursAfterSunset > 12 && hoursBeforeSunrise > 12){
+    std::cout << "__________________________________________________________________" << std::endl;
+    if((hoursAfterSunset > 12) || (hoursBeforeSunrise > 12 && hoursBeforeSunrise < 0)){
         std::cout << "ISS is currently on the illuminated side of the earth.";
     }else{
         std::cout << "ISS is currently on the dark side of the earth.";
@@ -149,6 +178,8 @@ int main() {
     }else{
         std::cout << "Currently there are non ideal conditions to observer ISS";
     }
+    std::cout << std::endl;
+    std::cout << "__________________________________________________________________";
     std::cout << std::endl;
     return 0;
 }
